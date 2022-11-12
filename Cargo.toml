@@ -1,0 +1,27 @@
+[package]
+name = "dumpitforlinux"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+byteorder = "1.4.3"
+chrono = "0.4.22"
+clap = {version = "4.0.11", features = ["derive"] }
+env_logger = "0.9.1"
+goblin = "0.5.4"
+indicatif = "0.17.1"
+log = "0.4.17"
+memoffset = "0.6.5"
+nix = "0.25.0"
+object = {version = "0.29.0", features = ["read", "write"]}
+tabled = "0.8.0"
+tar = "0.4.38"
+zstd = "0.11.2"
+
+[build-dependencies]
+anyhow = "1.0.65"
+vergen = {version = "7.4.2", default-features = false, features = ["build", "git", "rustc"] }
+pkg-config = "^0.3.3"

@@ -1,0 +1,46 @@
+02140000-02141fff : 2140000.ahci ahci@2140000
+021a0000-021a3fff : 21a0000.balloon balloon@21a0000
+02300000-023fffff : PCI ECAM
+10000000-1fffffff : pci@2300000
+  10000000-13ffffff : 0000:00:0a.0
+    10000000-102fffff : BOOTFB
+  14000000-14003fff : 0000:00:01.0
+    14000000-14003fff : ICH HD audio
+  14004000-14007fff : 0000:00:0a.0
+    14004000-14007fff : virtio-pci-modern
+  14008000-14008fff : 0000:00:03.0
+    14008000-14008fff : xhci-hcd
+  14009000-14009fff : 0000:00:05.0
+    14009000-14009fff : virtio-pci-legacy
+  1400a000-1400afff : 0000:00:05.0
+  1400b000-1400bfff : 0000:00:09.0
+    1400b000-1400bfff : prl_tg
+  1400c000-1400cfff : 0000:00:0a.0
+  1400d000-1400d3ff : 0000:00:02.0
+    1400d000-1400d3ff : ehci_hcd
+40000000-bc03ffff : System RAM
+  92940000-92940fff : reserved
+  92b60000-949dffff : Kernel code
+  949e0000-9532ffff : reserved
+  95330000-958dffff : Kernel data
+  958e0000-958effff : reserved
+  958fc000-99735fff : reserved
+  b7000000-b8ffffff : reserved
+  b9a00000-bb9fffff : reserved
+  bbb5c000-bbb5cfff : reserved
+  bbefc000-bbefcfff : reserved
+  bbfd0000-bbffffff : reserved
+  bc020000-bc03ffff : reserved
+bc040000-bc10ffff : reserved
+bc110000-bf5fffff : System RAM
+  bc110000-bc12ffff : reserved
+  be1a5000-be1a5fff : reserved
+  be1b5000-be1b5fff : reserved
+  bf400000-bf5fffff : reserved
+bf600000-bf9dffff : reserved
+bf9e0000-bfffffff : System RAM
+  bfaa8000-bfbe3fff : reserved
+  bfbe6000-bfbe7fff : reserved
+  bfbe8000-bfbe8fff : reserved
+  bfbe9000-bfc00fff : reserved
+  bfc01000-bfffffff : reserved

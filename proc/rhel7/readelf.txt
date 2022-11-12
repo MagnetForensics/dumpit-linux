@@ -1,0 +1,45 @@
+[m@instance-2 ~]$ sudo readelf -n /proc/kcore
+
+Displaying notes found at file offset 0x00000350 with length 0x0000128c:
+  Owner                 Data size       Description
+  CORE                 0x00000150       NT_PRSTATUS (prstatus structure)
+  CORE                 0x00000088       NT_PRPSINFO (prpsinfo structure)
+  CORE                 0x00001078       NT_TASKSTRUCT (task structure)
+[m@instance-2 ~]$ sudo readelf -l /proc/kcore
+
+Elf file type is CORE (Core file)
+Entry point 0x0
+There are 14 program headers, starting at offset 64
+
+Program Headers:
+  Type           Offset             VirtAddr           PhysAddr
+                 FileSiz            MemSiz              Flags  Align
+  NOTE           0x0000000000000350 0x0000000000000000 0x0000000000000000
+                 0x000000000000128c 0x0000000000000000         0
+  LOAD           0x00007fffff602000 0xffffffffff600000 0xffffffffffffffff
+                 0x0000000000800000 0x0000000000800000  RWE    1000
+  LOAD           0x00007fffa9e02000 0xffffffffa9e00000 0x000000007da00000
+                 0x000000000169c000 0x000000000169c000  RWE    1000
+  LOAD           0x00003568c0002000 0xffffb568c0000000 0xffffffffffffffff
+                 0x00001fffffffffff 0x00001fffffffffff  RWE    1000
+  LOAD           0x00007fffc0002000 0xffffffffc0000000 0xffffffffffffffff
+                 0x000000003f000000 0x000000003f000000  RWE    1000
+  LOAD           0x00001d2dc0003000 0xffff9d2dc0001000 0x0000000000001000
+                 0x0000000000054000 0x0000000000054000  RWE    1000
+  LOAD           0x0000691840002000 0xffffe91840000000 0xffffffffffffffff
+                 0x0000000000002000 0x0000000000002000  RWE    1000
+  LOAD           0x00001d2dc0062000 0xffff9d2dc0060000 0x0000000000060000
+                 0x0000000000038000 0x0000000000038000  RWE    1000
+  LOAD           0x00001d2dc0102000 0xffff9d2dc0100000 0x0000000000100000
+                 0x00000000be7ef000 0x00000000be7ef000  RWE    1000
+  LOAD           0x0000691840006000 0xffffe91840004000 0xffffffffffffffff
+                 0x0000000002fa0000 0x0000000002fa0000  RWE    1000
+  LOAD           0x00001d2e7ec01000 0xffff9d2e7ebff000 0x00000000bebff000
+                 0x00000000013e1000 0x00000000013e1000  RWE    1000
+  LOAD           0x0000691842fb1000 0xffffe91842faf000 0xffffffffffffffff
+                 0x0000000000051000 0x0000000000051000  RWE    1000
+  LOAD           0x00001d2ec0002000 0xffff9d2ec0000000 0x0000000100000000
+                 0x0000000040000000 0x0000000040000000  RWE    1000
+  LOAD           0x0000691844002000 0xffffe91844000000 0xffffffffffffffff
+                 0x0000000001000000 0x0000000001000000  RWE    1000
+[m@instance-2 ~]$ 

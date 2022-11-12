@@ -1,0 +1,27 @@
+00000000-00000fff : reserved
+00001000-00054fff : System RAM
+00055000-0005ffff : reserved
+00060000-00097fff : System RAM
+00098000-0009ffff : reserved
+000a0000-000bffff : PCI Bus 0000:00
+000f0000-000fffff : System ROM
+00100000-be8eefff : System RAM
+  2d000000-370fffff : Crash kernel
+  7da00000-7e1a1279 : Kernel code
+  7e1a127a-7e76c33f : Kernel data
+  7e965000-7ec72fff : Kernel bss
+be8ef000-beb6efff : reserved
+beb6f000-beb7efff : ACPI Tables
+beb7f000-bebfefff : ACPI Non-volatile Storage
+bebff000-bffdffff : System RAM
+bffe0000-bfffffff : reserved
+c0000000-febfefff : PCI Bus 0000:00
+  c0000000-c000007f : 0000:00:05.0
+  c0001000-c000107f : 0000:00:04.0
+  c0002000-c000207f : 0000:00:03.0
+  c0003000-c000303f : 0000:00:06.0
+fec00000-fec003ff : IOAPIC 0
+fed40000-fed44fff : MSFT0101:00
+  fed40000-fed44fff : MSFT0101:00
+fee00000-fee00fff : Local APIC
+100000000-13fffffff : System RAM
