@@ -23,5 +23,5 @@ zstd = "0.11.2"
 
 [build-dependencies]
 anyhow = "1.0.65"
-vergen = {version = "7.4.2", default-features = false, features = ["build", "git", "rustc"] }
+vergen = {version = "7.4.3", default-features = false, features = ["build", "git", "rustc"] }
 pkg-config = "^0.3.3"

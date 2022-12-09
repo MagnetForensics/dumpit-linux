@@ -3,3 +3,4 @@ rust/target/*
 rust/out
 *.zst
 *.core
+target/*
