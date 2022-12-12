@@ -76,6 +76,7 @@ crash <path to dump> /usr/lib/debug/boot/vmlinux-`uname -r`
 
 <details>
   <summary>Expand</summary>
+
 ```
 $ crash kcore.dumpit.5.15.0-48-generic.2022-10-09-0039.core /usr/lib/debug/boot/vmlinux-5.15.0-48-generic 
 
@@ -157,6 +158,7 @@ crash> ps
      20      2   1  ffff0000002e6e40  IN   0.0       0      0  [migration/1]
 (...)
 ```
+
 </details>
 
 ### Testing with drgn
@@ -171,8 +173,10 @@ drgn -c <path to dump>
 
 #### Running drgn
 ![default](./screenshots/dumpit-drgn.gif)
+
 <details>
   <summary>Expand</summary>
+
 ```
 $ drgn -c kcore.dumpit.5.15.0-48-generic.2022-10-09-0039.core 
 drgn 0.0.20 (using Python 3.10.6, elfutils 0.186, without libkdumpfile)
@@ -193,6 +197,8 @@ For help, type help(drgn).
 (char [56])"snd_intel_dspcfg"
 (...)
 ```
+
 </details>
+
 # Contributing / Feedback
 If you encounter any bugs, please file an issue in the [issues](https://github.com/magnetforensics/dumpit-linux) section of the project.
