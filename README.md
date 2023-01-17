@@ -11,6 +11,16 @@ In short, why you should use this utility:
 - Rust. This utility has been written in Rust, meaning that it is not only memory-safe - it can later be expanded to support additional remote streaming options.
 - User-land. This utility relies on `/proc/kcore` meaning that no Linux kernel module is required. Root permission is, however, needed.
 
+## Building
+1. [Install Rust](https://www.rust-lang.org/tools/install)
+2. Run the following command
+```
+cargo build --release
+```
+`cargo build --release` puts the resulting binary in `target/release` instead of `target/debug`.
+
+Compiling in debug mode is the default for development-- compilation time is shorter since the compiler doesn't do optimizations, but the code will run slower. Release mode takes longer to compile, but the code will run faster.
+
 ## What are Kernel crash dumps?
 More information can be found on the [Ubuntu Documentation](https://ubuntu.com/server/docs/kernel-crash-dump).
 
