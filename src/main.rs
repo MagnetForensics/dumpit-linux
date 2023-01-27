@@ -29,6 +29,7 @@ use std::io::SeekFrom;
 use std::io::prelude::*;
 use std::io::BufReader;
 use std::{mem, env, cmp};
+use std::cmp::max;
 use std::time::{Instant};
 
 use nix::unistd::Uid;
@@ -386,7 +387,9 @@ impl DumpItForLinux  {
                     let memsz = h.p_filesz(endian);
                     assert_eq!(h.p_filesz(endian), h.p_memsz(endian));
                     if !is_virtual {
-                        assert_eq!(memsz, mem_range.memsz);
+                        if memsz != mem_range.memsz {
+                            log::warn!("Mismatch between /proc/iomem segment size ({:#X}) and /proc/kcore segment size ({:#X}). Dumping {:#X} bytes.", mem_range.memsz, memsz, max(memsz, mem_range.memsz));
+                        }
                     }
                     let end_phys_addr = start_phys_addr + memsz;
                     let virt_addr = h.p_vaddr(endian);
@@ -395,7 +398,7 @@ impl DumpItForLinux  {
                     self.mem_ranges.push(MemoryRange {
                         start_phys_addr,
                         end_phys_addr,
-                        memsz,
+                        memsz: max(memsz, mem_range.memsz),
                         virt_addr,
                         kcore_file_off,
                         out_file_off,
