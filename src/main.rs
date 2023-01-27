@@ -97,7 +97,7 @@ fn pause() {
     let _ = stdin.read(&mut [0u8]).unwrap();
 }
 
-#[derive(Tabled)]
+#[derive(Tabled, Debug)]
 pub struct MemoryRange {
     #[tabled(display_with = "display_u64")]
     pub start_phys_addr:        u64,
@@ -374,6 +374,7 @@ impl DumpItForLinux  {
             // is null when looking at "readelf -l /proc/kcore"
             // We retrieve the physical offset from /proc/iomem using the segment sizes.
             for mem_range in &self.iomem_ranges {
+                println!("mem_range: {:#X?}", mem_range);
                 if h.p_paddr(endian) == mem_range.start_phys_addr ||
                    (h.p_paddr(endian) == 0 && h.p_filesz(endian) == mem_range.memsz) ||
                    (h.p_paddr(endian) >= mem_range.start_phys_addr && h.p_paddr(endian) < mem_range.end_phys_addr) {
@@ -383,9 +384,9 @@ impl DumpItForLinux  {
 
                     let start_phys_addr = mem_range.start_phys_addr + delta;
                     let memsz = h.p_filesz(endian);
-                    assert!(h.p_filesz(endian) == h.p_memsz(endian));
+                    assert_eq!(h.p_filesz(endian), h.p_memsz(endian));
                     if !is_virtual {
-                        assert!(memsz == mem_range.memsz);
+                        assert_eq!(memsz, mem_range.memsz);
                     }
                     let end_phys_addr = start_phys_addr + memsz;
                     let virt_addr = h.p_vaddr(endian);
