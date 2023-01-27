@@ -29,6 +29,7 @@ use std::io::SeekFrom;
 use std::io::prelude::*;
 use std::io::BufReader;
 use std::{mem, env, cmp};
+use std::cmp::max;
 use std::time::{Instant};
 
 use nix::unistd::Uid;
@@ -97,7 +98,7 @@ fn pause() {
     let _ = stdin.read(&mut [0u8]).unwrap();
 }
 
-#[derive(Tabled)]
+#[derive(Tabled, Debug)]
 pub struct MemoryRange {
     #[tabled(display_with = "display_u64")]
     pub start_phys_addr:        u64,
@@ -368,12 +369,13 @@ impl DumpItForLinux  {
         let mut out_file_off = 0;
         for h in headers {
             // This should always be true.
-            assert!(h.p_filesz(endian) == h.p_memsz(endian));
+            assert_eq!(h.p_filesz(endian), h.p_memsz(endian));
 
             // NOTE: There is an issue on Amazon Linux and Ubuntu VMs where physaddr
             // is null when looking at "readelf -l /proc/kcore"
             // We retrieve the physical offset from /proc/iomem using the segment sizes.
             for mem_range in &self.iomem_ranges {
+                println!("mem_range: {:#X?}", mem_range);
                 if h.p_paddr(endian) == mem_range.start_phys_addr ||
                    (h.p_paddr(endian) == 0 && h.p_filesz(endian) == mem_range.memsz) ||
                    (h.p_paddr(endian) >= mem_range.start_phys_addr && h.p_paddr(endian) < mem_range.end_phys_addr) {
@@ -383,9 +385,11 @@ impl DumpItForLinux  {
 
                     let start_phys_addr = mem_range.start_phys_addr + delta;
                     let memsz = h.p_filesz(endian);
-                    assert!(h.p_filesz(endian) == h.p_memsz(endian));
+                    assert_eq!(h.p_filesz(endian), h.p_memsz(endian));
                     if !is_virtual {
-                        assert!(memsz == mem_range.memsz);
+                        if memsz != mem_range.memsz {
+                            log::warn!("Mismatch between /proc/iomem segment size ({:#X}) and /proc/kcore segment size ({:#X}). Dumping {:#X} bytes.", mem_range.memsz, memsz, max(memsz, mem_range.memsz));
+                        }
                     }
                     let end_phys_addr = start_phys_addr + memsz;
                     let virt_addr = h.p_vaddr(endian);
@@ -394,7 +398,7 @@ impl DumpItForLinux  {
                     self.mem_ranges.push(MemoryRange {
                         start_phys_addr,
                         end_phys_addr,
-                        memsz,
+                        memsz: max(memsz, mem_range.memsz),
                         virt_addr,
                         kcore_file_off,
                         out_file_off,
