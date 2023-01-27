@@ -4,8 +4,8 @@ use pkg_config::find_library;
 
 fn main() -> Result<()> {
 
-    if !find_library("liblzma").is_ok() {
-        panic!("You need to install liblzma-dev. Run \"apt install liblzma-dev\"");
+    if let Err(e) = find_library("liblzma") {
+        panic!("You need to install liblzma-dev. Run \"apt install liblzma-dev\"\n\n{}", e);
 	}
 
     let mut config = Config::default();
