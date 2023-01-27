@@ -368,7 +368,7 @@ impl DumpItForLinux  {
         let mut out_file_off = 0;
         for h in headers {
             // This should always be true.
-            assert!(h.p_filesz(endian) == h.p_memsz(endian));
+            assert_eq!(h.p_filesz(endian), h.p_memsz(endian));
 
             // NOTE: There is an issue on Amazon Linux and Ubuntu VMs where physaddr
             // is null when looking at "readelf -l /proc/kcore"
