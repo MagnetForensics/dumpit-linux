@@ -68,6 +68,9 @@ struct Args {
     /// Print extra output while parsing
     #[clap(short, long)]
     verbose: bool,
+    /// Is output path a named pipe
+    #[clap(long)]
+    pipe: bool,
     /// Path to the output archive or file.
     #[clap(value_name = "Output Path")]
     output_path: Option<String>,
@@ -803,50 +806,70 @@ fn main() -> Result<()> {
     println!("");
 
     let args = Args::parse();
-    let mut out_file_path = args.output_path;
+    let out_path = args.output_path;
     let is_archive = !args.raw;
 
-    if out_file_path.is_none() {
-        // Generate the destination file name if no file is provided.
-        let now = Utc::now();
-        let uts = uname()?;
+    let out_path = match out_path {
+        Some(o) => o,
+        None => {
+            // Generate the destination file name if no file is provided.
+            let now = Utc::now();
+            let uts = uname()?;
 
-        // The main memory dump.
-        let mut file_name = format!("dumpit.{}.{}-{:02}-{:02}-{:02}{:02}",
-            uts.release().to_str().unwrap_or("uname"),
-            now.year(), now.month(), now.day(), now.hour(), now.minute());
+            // The main memory dump.
+            let mut file_name = format!("dumpit.{}.{}-{:02}-{:02}-{:02}{:02}",
+                                        uts.release().to_str().unwrap_or("uname"),
+                                        now.year(), now.month(), now.day(), now.hour(), now.minute());
 
-        if is_archive {
-            file_name += ".tar.zst"
-        } else {
-            file_name += ".core";
+            if is_archive {
+                file_name += ".tar.zst"
+            } else {
+                file_name += ".core";
+            }
+
+            pause();
+            file_name
         }
+    };
 
-        out_file_path = Some(file_name);
-        pause();
-    }
-
-    if let Some(ref o) = out_file_path {
-        debug!("Destination file: {}", o);
+    if args.pipe {
+        debug!("Destination pipe: {}", out_path);
+    } else {
+        debug!("Destination file: {}", out_path);
     }
 
     let mut image = DumpItForLinux::new()?;
     image.init()?;
     // image.display();
 
-    if let Some(ref file_path) = out_file_path {
-        let start = Instant::now();
+    let start = Instant::now();
 
-        let mut f = fs::File::create(&file_path.to_string())?;
-        if is_archive == true {
+    if args.pipe {
+        let mut pipe = match unix_named_pipe::open_write(&out_path) {
+            Ok(p) => p,
+            Err(e) => {
+                info!("Could not open pipe at {}, creating new pipe: {}", &out_path, e);
+                unix_named_pipe::create(&out_path, Some(0600))?
+            }
+        };
+
+        if is_archive {
+            image.write_to_archive(&mut pipe)?;
+        } else {
+            image.write_kcore_dumpit(&mut pipe)?;
+        }
+    } else {
+        let mut f = fs::File::create(&out_path)?;
+        if is_archive {
             image.write_to_archive(&mut f)?;
         } else {
             image.write_kcore_dumpit(&mut f)?;
         }
 
-        let duration = start.elapsed();
-        info!("Total time elapsed: {:?}", duration);
     }
+
+    let duration = start.elapsed();
+    info!("Total time elapsed: {:?}", duration);
 
     Ok(())
 }
