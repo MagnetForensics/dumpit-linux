@@ -27,7 +27,7 @@ More information can be found on the [Ubuntu Documentation](https://ubuntu.com/s
 ## Usage
 ### CLI Usage
 ```
-DumpIt (For Linux - x64 & ARM64) v0.1.0-8-gbcbb4e8 (2022-10-09T04:48:11Z)
+DumpIt (For Linux - x64 & ARM64) 0.1.0 (2023-01-27T13:42:56Z)
 Linux memory acquisition that makes sense.
 Copyright (c) 2022, Magnet Forensics, Inc.
 
@@ -36,12 +36,13 @@ A program that makes memory analysis for incident response easy, scalable and pr
 Usage: dumpitforlinux [OPTIONS] [Output Path]
 
 Arguments:
-  [Output Path]  Path to the output archive or file
+  [Output Path]  Path to the output archive, file, or named pipe
 
 Options:
   -0, --to-stdout  Write to stdout instead of a file
   -r, --raw        Create a single core dump file instead of a compressed archive
   -v, --verbose    Print extra output while parsing
+  -p, --pipe       Writes output to a named pipe. Note that if DumpIt is set to write an archive, it will write the archive to the pipe
   -h, --help       Print help information
   -V, --version    Print version information
 ```
