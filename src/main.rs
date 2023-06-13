@@ -30,6 +30,8 @@ use std::io::prelude::*;
 use std::io::BufReader;
 use std::{mem, env, cmp};
 use std::cmp::max;
+use std::fs::OpenOptions;
+use std::path::Path;
 use std::time::{Instant};
 
 use nix::unistd::Uid;
@@ -378,7 +380,7 @@ impl DumpItForLinux  {
             // is null when looking at "readelf -l /proc/kcore"
             // We retrieve the physical offset from /proc/iomem using the segment sizes.
             for mem_range in &self.iomem_ranges {
-                println!("mem_range: {:#X?}", mem_range);
+                debug!("mem_range: {:#X?}", mem_range);
                 if h.p_paddr(endian) == mem_range.start_phys_addr ||
                    (h.p_paddr(endian) == 0 && h.p_filesz(endian) == mem_range.memsz) ||
                    (h.p_paddr(endian) >= mem_range.start_phys_addr && h.p_paddr(endian) < mem_range.end_phys_addr) {
@@ -845,13 +847,20 @@ fn main() -> Result<()> {
     let start = Instant::now();
 
     if args.pipe {
-        let mut pipe = match unix_named_pipe::open_write(&out_path) {
-            Ok(p) => p,
-            Err(e) => {
-                info!("Could not open pipe at {}, creating new pipe: {}", &out_path, e);
-                unix_named_pipe::create(&out_path, Some(0600))?
+        if !Path::new(&out_path).exists() {
+            info!("Pipe does not exist, creating...");
+            if let Err(e) = unix_named_pipe::create(&out_path, Some(0600)) {
+                error!("Failed to create pipe: {}", e);
             }
-        };
+            info!("Pipe created at {}", out_path);
+        }
+
+        info!("Waiting for reader at {}", out_path);
+        let mut pipe = OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open(&out_path)?;
+        info!("Pipe opened: {}", out_path);
 
         if is_archive {
             image.write_to_archive(&mut pipe)?;
