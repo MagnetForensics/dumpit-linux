@@ -70,10 +70,10 @@ struct Args {
     /// Print extra output while parsing
     #[clap(short, long)]
     verbose: bool,
-    /// Is output path a named pipe
-    #[clap(long)]
+    /// Writes output to a named pipe. Note that if DumpIt is set to write an archive, it will write the archive to the pipe
+    #[clap(short, long)]
     pipe: bool,
-    /// Path to the output archive or file.
+    /// Path to the output archive, file, or named pipe.
     #[clap(value_name = "Output Path")]
     output_path: Option<String>,
 }
