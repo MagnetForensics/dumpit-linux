@@ -30,6 +30,8 @@ use std::io::prelude::*;
 use std::io::BufReader;
 use std::{mem, env, cmp};
 use std::cmp::max;
+use std::fs::OpenOptions;
+use std::path::Path;
 use std::time::{Instant};
 
 use nix::unistd::Uid;
@@ -68,7 +70,10 @@ struct Args {
     /// Print extra output while parsing
     #[clap(short, long)]
     verbose: bool,
-    /// Path to the output archive or file.
+    /// Writes output to a named pipe. Note that if DumpIt is set to write an archive, it will write the archive to the pipe
+    #[clap(short, long)]
+    pipe: bool,
+    /// Path to the output archive, file, or named pipe.
     #[clap(value_name = "Output Path")]
     output_path: Option<String>,
 }
@@ -375,7 +380,7 @@ impl DumpItForLinux  {
             // is null when looking at "readelf -l /proc/kcore"
             // We retrieve the physical offset from /proc/iomem using the segment sizes.
             for mem_range in &self.iomem_ranges {
-                println!("mem_range: {:#X?}", mem_range);
+                debug!("mem_range: {:#X?}", mem_range);
                 if h.p_paddr(endian) == mem_range.start_phys_addr ||
                    (h.p_paddr(endian) == 0 && h.p_filesz(endian) == mem_range.memsz) ||
                    (h.p_paddr(endian) >= mem_range.start_phys_addr && h.p_paddr(endian) < mem_range.end_phys_addr) {
@@ -803,50 +808,77 @@ fn main() -> Result<()> {
     println!("");
 
     let args = Args::parse();
-    let mut out_file_path = args.output_path;
+    let out_path = args.output_path;
     let is_archive = !args.raw;
 
-    if out_file_path.is_none() {
-        // Generate the destination file name if no file is provided.
-        let now = Utc::now();
-        let uts = uname()?;
+    let out_path = match out_path {
+        Some(o) => o,
+        None => {
+            // Generate the destination file name if no file is provided.
+            let now = Utc::now();
+            let uts = uname()?;
 
-        // The main memory dump.
-        let mut file_name = format!("dumpit.{}.{}-{:02}-{:02}-{:02}{:02}",
-            uts.release().to_str().unwrap_or("uname"),
-            now.year(), now.month(), now.day(), now.hour(), now.minute());
+            // The main memory dump.
+            let mut file_name = format!("dumpit.{}.{}-{:02}-{:02}-{:02}{:02}",
+                                        uts.release().to_str().unwrap_or("uname"),
+                                        now.year(), now.month(), now.day(), now.hour(), now.minute());
 
-        if is_archive {
-            file_name += ".tar.zst"
-        } else {
-            file_name += ".core";
+            if is_archive {
+                file_name += ".tar.zst"
+            } else {
+                file_name += ".core";
+            }
+
+            pause();
+            file_name
         }
+    };
 
-        out_file_path = Some(file_name);
-        pause();
-    }
-
-    if let Some(ref o) = out_file_path {
-        debug!("Destination file: {}", o);
+    if args.pipe {
+        debug!("Destination pipe: {}", out_path);
+    } else {
+        debug!("Destination file: {}", out_path);
     }
 
     let mut image = DumpItForLinux::new()?;
     image.init()?;
     // image.display();
 
-    if let Some(ref file_path) = out_file_path {
-        let start = Instant::now();
+    let start = Instant::now();
 
-        let mut f = fs::File::create(&file_path.to_string())?;
-        if is_archive == true {
+    if args.pipe {
+        if !Path::new(&out_path).exists() {
+            info!("Pipe does not exist, creating...");
+            if let Err(e) = unix_named_pipe::create(&out_path, Some(0600)) {
+                error!("Failed to create pipe: {}", e);
+            }
+            info!("Pipe created at {}", out_path);
+        }
+
+        info!("Waiting for reader at {}", out_path);
+        let mut pipe = OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open(&out_path)?;
+        info!("Pipe opened: {}", out_path);
+
+        if is_archive {
+            image.write_to_archive(&mut pipe)?;
+        } else {
+            image.write_kcore_dumpit(&mut pipe)?;
+        }
+    } else {
+        let mut f = fs::File::create(&out_path)?;
+        if is_archive {
             image.write_to_archive(&mut f)?;
         } else {
             image.write_kcore_dumpit(&mut f)?;
         }
 
-        let duration = start.elapsed();
-        info!("Total time elapsed: {:?}", duration);
     }
+
+    let duration = start.elapsed();
+    info!("Total time elapsed: {:?}", duration);
 
     Ok(())
 }
