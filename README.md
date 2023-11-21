@@ -12,6 +12,19 @@ In short, why you should use this utility:
 - User-land. This utility relies on `/proc/kcore` meaning that no Linux kernel module is required. Root permission is, however, needed.
 
 ## Building
+### Google Container Optimized OS
+```
+toolkit
+apt-get update
+apt-get install pkg-config liblzma-dev
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+mkdir ../dumps
+cargo run --release -- -r ../dumps/dump.$container_host_build_id.core
+echo Get symbols too
+curl https://storage.googleapis.com/cos-tools/$container_host_build_id/vmlinux > ../dumps/vmlinux-$container_host_build_id
+```
+Files can be remotely recovered with `gcloud compute scp`
+### Linux
 1. [Install Rust](https://www.rust-lang.org/tools/install)
 2. Run the following command
 ```
